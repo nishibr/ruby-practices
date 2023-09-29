@@ -14,6 +14,8 @@ class Calendar
     output_calendar(target_year, target_month, first_day, last_day)
   end
 
+  private
+
   def output_calendar(target_year, target_month, first_day, last_day)
     # 月、西暦を中央揃えで出力する
     puts first_day.strftime("%m月 %Y").center(20)
