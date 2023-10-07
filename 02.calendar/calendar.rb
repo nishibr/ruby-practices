@@ -19,9 +19,7 @@ class Calendar
     (first_date..last_date).each do |date|
       day = date.day.to_s.rjust(2)
       if date == first_date
-        first_date.wday.times do
-          print "   "
-        end
+        print "   " * first_date.wday
       end
       if date == Date.today
         print "\e[7m#{day}\e[0m "
