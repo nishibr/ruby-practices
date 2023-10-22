@@ -4,16 +4,16 @@ COLUMN_LENGTH = 3
 FILE_SPACE = 2
 TARGET_DIR = '*'
 
-def get_files
+def fetch_files
   Dir.glob(TARGET_DIR)
 end
 
-def get_max_file_space(files)
-  files.map {|file| file.size}.max + FILE_SPACE
+def calculate_max_file_space(files)
+  files.map(&:size).max + FILE_SPACE
 end
 
 def output(files)
-  max_file_space = get_max_file_space(files)
+  max_file_space = calculate_max_file_space(files)
   number_of_row = (files.size / COLUMN_LENGTH.to_f).ceil
   number_of_row.times do |i|
     COLUMN_LENGTH.times do |j|
@@ -23,5 +23,5 @@ def output(files)
   end
 end
 
-files = get_files
+files = fetch_files
 output(files)
