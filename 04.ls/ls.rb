@@ -1,27 +1,54 @@
 # frozen_string_literal: true
 
-COLUMN_LENGTH = 3
-FILE_SPACE = 2
-TARGET_DIR = '*'
+COLUMN_LENGTH = 3 # 出力する列数
+FILE_SPACE = 2    # 出力時の余白
+TARGET_DIR = '*'  # 対象ディレクトリ
 
+def main
+  # ファイル一覧を取得
+  files = fetch_files
+  # ファイル一覧を表示
+  display_files(files)
+end
+
+# ファイル一覧を取得する
 def fetch_files
   Dir.glob(TARGET_DIR)
 end
 
-def calculate_max_file_space(files)
-  files.map(&:size).max + FILE_SPACE
-end
-
-def output(files)
-  max_file_space = calculate_max_file_space(files)
-  number_of_row = (files.size / COLUMN_LENGTH.to_f).ceil
-  number_of_row.times do |i|
-    COLUMN_LENGTH.times do |j|
-      print files[number_of_row * j + i].ljust(max_file_space) if !files[number_of_row * j + i].nil?
+# ファイル一覧を表示する
+def display_files(files)
+  sorted_files = sort_files(files)
+  column_widths = calculate_column_widths(sorted_files)
+  sorted_files.each_slice(COLUMN_LENGTH) do |sorted_files_slice|
+    sorted_files_slice.each_with_index do |file, index|
+      print file.ljust(column_widths[index] + FILE_SPACE)
     end
     puts
   end
 end
 
-files = fetch_files
-output(files)
+# ファイル一覧を出力順に並べ替える
+def sort_files(files)
+  number_of_row = (files.size / COLUMN_LENGTH.to_f).ceil
+  sorted_files = []
+  number_of_row.times do |i|
+    COLUMN_LENGTH.times do |j|
+      sorted_files.push(files[number_of_row * j + i]) if files[number_of_row * j + i]
+    end
+  end
+  sorted_files
+end
+
+# 各列ごとの最大幅を計算する
+def calculate_column_widths(sorted_files)
+  column_widths = Array.new(COLUMN_LENGTH, 0)
+  sorted_files.each_slice(COLUMN_LENGTH) do |sorted_files_slice|
+    sorted_files_slice.each_with_index do |file, index|
+      column_widths[index] = [column_widths[index], file.length].max
+    end
+  end
+  column_widths
+end
+
+main
