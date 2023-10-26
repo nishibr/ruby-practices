@@ -1,19 +1,26 @@
 # frozen_string_literal: true
 
+require 'optparse'
+
 COLUMN_LENGTH = 3 # 出力する列数
 FILE_SPACE = 2    # 出力時の余白
 TARGET_DIR = '*'  # 対象ディレクトリ
 
 def main
-  # ファイル一覧を取得
-  files = fetch_files
-  # ファイル一覧を表示
+  options = set_options
+  files = fetch_files(options)
   display_files(files)
 end
 
+# オプションを設定する
+def set_options
+  received_options = ARGV.getopts('a')
+  received_options['a'] ? File::FNM_DOTMATCH : 0
+end
+
 # ファイル一覧を取得する
-def fetch_files
-  Dir.glob(TARGET_DIR)
+def fetch_files(options)
+  Dir.glob(TARGET_DIR, options)
 end
 
 # ファイル一覧を表示する
@@ -34,7 +41,7 @@ def sort_files(files)
   sorted_files = []
   number_of_row.times do |i|
     COLUMN_LENGTH.times do |j|
-      sorted_files.push(files[number_of_row * j + i]) if files[number_of_row * j + i]
+      sorted_files.push(files[number_of_row * j + i] || '')
     end
   end
   sorted_files
