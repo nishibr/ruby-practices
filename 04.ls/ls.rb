@@ -7,20 +7,20 @@ FILE_SPACE = 2    # 出力時の余白
 TARGET_DIR = '*'  # 対象ディレクトリ
 
 def main
-  options = set_options
-  files = fetch_files(options)
+  files = fetch_files
   display_files(files)
+end
+
+# ファイル一覧を取得する
+def fetch_files
+  options = set_options
+  Dir.glob(TARGET_DIR, options)
 end
 
 # オプションを設定する
 def set_options
   received_options = ARGV.getopts('a')
   received_options['a'] ? File::FNM_DOTMATCH : 0
-end
-
-# ファイル一覧を取得する
-def fetch_files(options)
-  Dir.glob(TARGET_DIR, options)
 end
 
 # ファイル一覧を表示する
