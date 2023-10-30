@@ -13,14 +13,14 @@ end
 
 # ファイル一覧を取得する
 def fetch_files
-  options = set_options
-  Dir.glob(TARGET_DIR, options)
+  ls_options = parse_received_ls_options
+  Dir.glob(TARGET_DIR, ls_options)
 end
 
 # オプションを設定する
-def set_options
-  received_options = ARGV.getopts('a')
-  received_options['a'] ? File::FNM_DOTMATCH : 0
+def parse_received_ls_options
+  received_ls_options = ARGV.getopts('a')
+  received_ls_options['a'] ? File::FNM_DOTMATCH : 0
 end
 
 # ファイル一覧を表示する
