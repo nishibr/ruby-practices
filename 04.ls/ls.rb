@@ -13,14 +13,16 @@ end
 
 # ファイル一覧を取得する
 def fetch_files
-  a_option = set_a_option
-  Dir.glob(TARGET_DIR, a_option)
+  if a_option?
+    Dir.glob(TARGET_DIR, File::FNM_DOTMATCH)
+  else
+    Dir.glob(TARGET_DIR)
+  end
 end
 
-# aオプションを設定する
-def set_a_option
-  received_a_option = ARGV.getopts('a')
-  received_a_option['a'] ? File::FNM_DOTMATCH : 0
+# aオプションの有無を判定する
+def a_option?
+  ARGV.include?('-a')
 end
 
 # ファイル一覧を表示する
