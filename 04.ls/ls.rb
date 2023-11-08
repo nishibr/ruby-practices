@@ -15,6 +15,8 @@ end
 def fetch_files
   if a_option?
     Dir.glob(TARGET_DIR, File::FNM_DOTMATCH)
+  elsif r_option?
+    Dir.glob(TARGET_DIR).reverse
   else
     Dir.glob(TARGET_DIR)
   end
@@ -23,6 +25,11 @@ end
 # aオプションの有無を判定する
 def a_option?
   ARGV.include?('-a')
+end
+
+# rオプションの有無を判定する
+def r_option?
+  ARGV.include?('-r')
 end
 
 # ファイル一覧を表示する
