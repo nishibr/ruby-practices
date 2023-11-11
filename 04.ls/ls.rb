@@ -5,16 +5,16 @@ require 'optparse'
 COLUMN_LENGTH = 3 # 出力する列数
 FILE_SPACE = 2    # 出力時の余白
 TARGET_DIR = '*'  # 対象ディレクトリ
-LS_OPTIONS = ARGV.getopts('a', 'r') # 受け取り可能なlsコマンドのオプション
 
 def main
-  files = fetch_files
-  display_files(files)
+  options = ARGV.getopts('a', 'r')
+  files = fetch_files(options)
+  display_files(files, options)
 end
 
 # ファイル一覧を取得する
-def fetch_files
-  if LS_OPTIONS['a']
+def fetch_files(options)
+  if options['a']
     Dir.glob(TARGET_DIR, File::FNM_DOTMATCH)
   else
     Dir.glob(TARGET_DIR)
@@ -22,8 +22,8 @@ def fetch_files
 end
 
 # ファイル一覧を表示する
-def display_files(files)
-  files.reverse! if LS_OPTIONS['r']
+def display_files(files, options)
+  files.reverse! if options['r']
   sorted_files = sort_files(files)
   column_widths = calculate_column_widths(sorted_files)
   sorted_files.each_slice(COLUMN_LENGTH) do |sorted_files_slice|
