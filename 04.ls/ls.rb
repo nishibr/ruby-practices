@@ -7,26 +7,23 @@ FILE_SPACE = 2    # 出力時の余白
 TARGET_DIR = '*'  # 対象ディレクトリ
 
 def main
-  files = fetch_files
-  display_files(files)
+  options = ARGV.getopts('a', 'r')
+  files = fetch_files(options)
+  display_files(files, options)
 end
 
 # ファイル一覧を取得する
-def fetch_files
-  if a_option?
+def fetch_files(options)
+  if options['a']
     Dir.glob(TARGET_DIR, File::FNM_DOTMATCH)
   else
     Dir.glob(TARGET_DIR)
   end
 end
 
-# aオプションの有無を判定する
-def a_option?
-  ARGV.include?('-a')
-end
-
 # ファイル一覧を表示する
-def display_files(files)
+def display_files(files, options)
+  files.reverse! if options['r']
   sorted_files = sort_files(files)
   column_widths = calculate_column_widths(sorted_files)
   sorted_files.each_slice(COLUMN_LENGTH) do |sorted_files_slice|
