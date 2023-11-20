@@ -40,33 +40,33 @@ end
 
 # 表示する(ショートフォーマット)
 def display_short_format(files)
-  sorted_short_format = sort_short_format(files)
-  column_widths = calculate_short_format_column_widths(sorted_short_format)
-  sorted_short_format.each_slice(COLUMN_LENGTH) do |sorted_short_format_slice|
-    sorted_short_format_slice.each_with_index do |file, index|
-      print file.ljust(column_widths[index] + FILE_SPACE)
+  sorted_files = sort_files(files)
+  short_format_column_widths = calculate_short_format_column_widths(sorted_files)
+  sorted_files.each_slice(COLUMN_LENGTH) do |sorted_files_slice|
+    sorted_files_slice.each_with_index do |file, index|
+      print file.ljust(short_format_column_widths[index] + FILE_SPACE)
     end
     puts
   end
 end
 
 # 出力順に並べ替える(ショートフォーマット)
-def sort_short_format(files)
+def sort_files(files)
   number_of_row = (files.size / COLUMN_LENGTH.to_f).ceil
-  sorted_short_format = []
+  sorted_files = []
   number_of_row.times do |i|
     COLUMN_LENGTH.times do |j|
-      sorted_short_format.push(files[number_of_row * j + i] || '')
+      sorted_files.push(files[number_of_row * j + i] || '')
     end
   end
-  sorted_short_format
+  sorted_files
 end
 
 # 最大幅を計算する(ショートフォーマット)
-def calculate_short_format_column_widths(sorted_short_format)
+def calculate_short_format_column_widths(sorted_files)
   short_format_column_widths = Array.new(COLUMN_LENGTH, 0)
-  sorted_short_format.each_slice(COLUMN_LENGTH) do |sorted_short_format_slice|
-    sorted_short_format_slice.each_with_index do |file, index|
+  sorted_files.each_slice(COLUMN_LENGTH) do |sorted_files_slice|
+    sorted_files_slice.each_with_index do |file, index|
       short_format_column_widths[index] = [short_format_column_widths[index], file.length].max
     end
   end
@@ -75,18 +75,18 @@ end
 
 # 表示する(ロングフォーマット)
 def display_long_format(files)
-  long_formats = files.map { |file| generate_long_format(file) }
-  long_format_column_widths = calculate_long_format_column_widths(long_formats)
-  block_total = long_formats.sum { |long_format| long_format[:blocks] } / 2
-  puts "total #{block_total}"
-  long_formats.each do |long_format|
-    puts "#{long_format[:type]}#{long_format[:mode]} "\
-         "#{long_format[:nlink].rjust(long_format_column_widths[:nlink])} "\
-         "#{long_format[:username].ljust(long_format_column_widths[:username])} "\
-         "#{long_format[:groupname].ljust(long_format_column_widths[:groupname])} "\
-         "#{long_format[:bitesize].rjust(long_format_column_widths[:bitesize])} "\
-         "#{long_format[:mtime]} "\
-         "#{long_format[:filename]}"
+  formatted_files = files.map { |file| generate_long_format(file) }
+  long_format_column_widths = calculate_long_format_column_widths(formatted_files)
+  total_blocks = formatted_files.sum { |formatted_file| formatted_file[:blocks] } / 2
+  puts "total #{total_blocks}"
+  formatted_files.each do |formatted_file|
+    puts "#{formatted_file[:type]}#{formatted_file[:mode]} "\
+         "#{formatted_file[:nlink].rjust(long_format_column_widths[:nlink])} "\
+         "#{formatted_file[:username].ljust(long_format_column_widths[:username])} "\
+         "#{formatted_file[:groupname].ljust(long_format_column_widths[:groupname])} "\
+         "#{formatted_file[:bitesize].rjust(long_format_column_widths[:bitesize])} "\
+         "#{formatted_file[:mtime]} "\
+         "#{formatted_file[:filename]}"
   end
 end
 
@@ -106,7 +106,7 @@ def generate_long_format(file)
     filename: type == 'l' ? "#{file} -> #{File.readlink(file)}" : file,
     blocks: fs.blocks
   }
-  set_special_permission(file_mode_number, long_format[:mode])
+  set_special_permission(file_mode_number, long_format[:mode]) 
   long_format
 end
 
@@ -123,10 +123,10 @@ def set_special_permission(file_mode_number, long_format_mode)
 end
 
 # 最大幅を計算する(ロングフォーマット)
-def calculate_long_format_column_widths(long_format)
+def calculate_long_format_column_widths(formatted_files)
   column_widths_attributes = %i[nlink username groupname bitesize]
   column_widths_attributes.map do |column_widths_attribute|
-    [column_widths_attribute, long_format.map { |format| format[column_widths_attribute].to_s.length }.max]
+    [column_widths_attribute, formatted_files.map { |file| file[column_widths_attribute].to_s.length }.max]
   end.to_h
 end
 
