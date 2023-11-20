@@ -106,7 +106,7 @@ def generate_long_format(file)
     filename: type == 'l' ? "#{file} -> #{File.readlink(file)}" : file,
     blocks: fs.blocks
   }
-  set_special_permission(file_mode_number, long_format[:mode]) 
+  set_special_permission(file_mode_number, long_format[:mode])
   long_format
 end
 
