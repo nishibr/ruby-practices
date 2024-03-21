@@ -32,19 +32,16 @@ def process_analyze_input(files)
 end
 
 def analyze_input(text, file = '')
-  result = {}
-  result[:lines] = text.count("\n")
-  result[:words] = text.split(/\s+/).size
-  result[:bytes] = text.length
-  result[:file] = file
-  result
+  result = {
+    lines: text.count("\n"),
+    words: text.split(/\s+/).size,
+    bytes: text.length,
+    file: file
+  }
 end
 
 def total_analyze_input(overall_analyzed_input)
-  totals = {}
-  %i[lines words bytes].each do |key|
-    totals[key] = overall_analyzed_input.compact.sum { |input_analysis| input_analysis[key] || 0 }
-  end
+  totals = %i[lines words bytes].map { |key| [key, overall_analyzed_input.compact.sum { |input_analysis| input_analysis[key] || 0 }] }.to_h
   totals[:file] = 'total'
   totals
 end
