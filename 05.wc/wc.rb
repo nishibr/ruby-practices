@@ -32,11 +32,11 @@ def process_analyze_input(files)
 end
 
 def analyze_input(text, file = '')
-  result = {
+  {
     lines: text.count("\n"),
     words: text.split(/\s+/).size,
     bytes: text.length,
-    file: file
+    file:
   }
 end
 
