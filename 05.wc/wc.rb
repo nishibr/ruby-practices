@@ -5,9 +5,9 @@ require 'optparse'
 def main
   options, files = parse_options
   options = { l: true, w: true, c: true } if options.empty?
-  overall_words_count, standard_input_flag = process_words_count(files)
-  column_width = calculate_column_width(options, overall_words_count, standard_input_flag)
-  display_words_count(options, overall_words_count, column_width)
+  overall_analyzed_input = process_analyze_input(files)
+  column_width = calculate_column_width(options, files, overall_analyzed_input)
+  display_analyze_input(options, overall_analyzed_input, column_width)
 end
 
 def parse_options
@@ -20,58 +20,52 @@ def parse_options
   [options, files]
 end
 
-def process_words_count(files)
-  overall_words_count = []
-  standard_input_flag = false
+def process_analyze_input(files)
+  overall_analyzed_input = []
   if files.any?
-    files.each do |file|
-      text = File.read(file)
-      input_words = words_count(text, file)
-      overall_words_count.push(input_words)
-    end
-    overall_words_count.push(total_words_count(overall_words_count)) if files.size > 1
+    overall_analyzed_input = files.map { |file| analyze_input(File.read(file), file) }
+    overall_analyzed_input.push(total_analyze_input(overall_analyzed_input)) if files.size > 1
   else
-    overall_words_count.push(words_count($stdin.read))
-    standard_input_flag = true
+    overall_analyzed_input.push(analyze_input($stdin.read))
   end
-  [overall_words_count, standard_input_flag]
+  overall_analyzed_input
 end
 
-def words_count(text, file = '')
+def analyze_input(text, file = '')
   result = {}
-  result.store('lines', text.count("\n"))
-  result.store('words', text.split(/\s+/).size)
-  result.store('bytes', text.length)
-  result.store('file', file)
+  result[:lines] = text.count("\n")
+  result[:words] = text.split(/\s+/).size
+  result[:bytes] = text.length
+  result[:file] = file
   result
 end
 
-def total_words_count(counts)
+def total_analyze_input(overall_analyzed_input)
   totals = {}
-  totals.store('lines', counts.compact.sum { |count| count['lines'] })
-  totals.store('words', counts.compact.sum { |count| count['words'] })
-  totals.store('bytes', counts.compact.sum { |count| count['bytes'] })
-  totals.store('file', 'total')
+  %i[lines words bytes].each do |key|
+    totals[key] = overall_analyzed_input.compact.sum { |input_analysis| input_analysis[key] || 0 }
+  end
+  totals[:file] = 'total'
   totals
 end
 
-def calculate_column_width(options, overall_words_count, standard_input_flag)
+def calculate_column_width(options, files, overall_analyzed_input)
   if options.length == 1
     0
-  elsif standard_input_flag
+  elsif files.none?
     7
   else
-    overall_words_count.map { |item| [item['lines'], item['words'], item['bytes']].compact.max }.max.to_s.length
+    overall_analyzed_input.map { |item| [item[:lines], item[:words], item[:bytes]].compact.max }.max.to_s.length
   end
 end
 
-def display_words_count(options, overall_words_count, column_width)
-  overall_words_count.each do |item|
+def display_analyze_input(options, overall_analyzed_input, column_width)
+  overall_analyzed_input.each do |item|
     output = ''
-    output += "#{item['lines'].to_s.rjust(column_width)} " if options[:l]
-    output += "#{item['words'].to_s.rjust(column_width)} " if options[:w]
-    output += "#{item['bytes'].to_s.rjust(column_width)} " if options[:c]
-    output += item['file']
+    output += "#{item[:lines].to_s.rjust(column_width)} " if options[:l]
+    output += "#{item[:words].to_s.rjust(column_width)} " if options[:w]
+    output += "#{item[:bytes].to_s.rjust(column_width)} " if options[:c]
+    output += item[:file]
     puts output
   end
 end
